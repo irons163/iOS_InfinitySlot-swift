@@ -48,6 +48,8 @@ final class ViewController: UIViewController, ADBannerViewDelegate, FullScreenCo
 
         if areAdsRemoved {
             view.backgroundColor = .blue
+        } else if let backgroundImage = UIImage(named: "laba_bg") {
+            view.backgroundColor = UIColor(patternImage: backgroundImage)
         }
 
         let skView: SKView
@@ -55,6 +57,7 @@ final class ViewController: UIViewController, ADBannerViewDelegate, FullScreenCo
             skView = existingView
         } else {
             let newView = SKView(frame: view.bounds)
+            newView.backgroundColor = .clear
             newView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             view.addSubview(newView)
             skView = newView
@@ -71,6 +74,7 @@ final class ViewController: UIViewController, ADBannerViewDelegate, FullScreenCo
         super.viewDidLayoutSubviews()
 
         guard let skView else { return }
+        skView.frame = view.safeAreaLayoutGuide.layoutFrame
         if scene != nil && scene?.size == skView.bounds.size { return }
 
         let scene = MyScene(size: skView.bounds.size)
