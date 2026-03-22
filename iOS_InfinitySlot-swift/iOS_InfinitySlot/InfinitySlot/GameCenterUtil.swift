@@ -2,6 +2,7 @@ import GameKit
 import UIKit
 
 final class GameCenterUtil: NSObject, GKGameCenterControllerDelegate {
+    static let gameCenterDidFinishNotification = Notification.Name("GameCenterDidFinish")
     static let shared = GameCenterUtil()
 
     private var gameCenterAvailable = false
@@ -96,14 +97,23 @@ final class GameCenterUtil: NSObject, GKGameCenterControllerDelegate {
     }
 
     func showGameCenter(_ viewController: UIViewController) {
+        guard GKLocalPlayer.local.isAuthenticated else {
+            let alert = UIAlertController(title: "Game Center", message: "Please sign in to Game Center to view leaderboards.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            viewController.present(alert, animated: true, completion: nil)
+            return
+        }
+
         let gameView = GKGameCenterViewController()
         gameView.gameCenterDelegate = self
-        gameView.leaderboardIdentifier = "com.xxxx.test"
+        gameView.leaderboardIdentifier = "com.irons.InfiniteSlotMoney"
         gameView.leaderboardTimeScope = .allTime
         viewController.present(gameView, animated: true, completion: nil)
     }
 
     func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {
-        gameCenterViewController.dismiss(animated: true, completion: nil)
+        gameCenterViewController.dismiss(animated: true) {
+            NotificationCenter.default.post(name: GameCenterUtil.gameCenterDidFinishNotification, object: nil)
+        }
     }
 }

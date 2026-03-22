@@ -68,6 +68,8 @@ final class ViewController: UIViewController, ADBannerViewDelegate, FullScreenCo
         _ = gameCenterUtil.isGameCenterAvailable()
         gameCenterUtil.authenticateLocalUser(self)
         gameCenterUtil.submitAllSavedScores()
+
+        NotificationCenter.default.addObserver(self, selector: #selector(gameCenterDidFinish), name: GameCenterUtil.gameCenterDidFinishNotification, object: nil)
     }
 
     override func viewDidLayoutSubviews() {
@@ -105,8 +107,15 @@ final class ViewController: UIViewController, ADBannerViewDelegate, FullScreenCo
     private func showRankView() {
         let gameCenterUtil = GameCenterUtil.shared
         _ = gameCenterUtil.isGameCenterAvailable()
+        scene?.isPaused = true
+        skView?.isPaused = true
         gameCenterUtil.showGameCenter(self)
         gameCenterUtil.submitAllSavedScores()
+    }
+
+    @objc private func gameCenterDidFinish() {
+        scene?.isPaused = false
+        skView?.isPaused = false
     }
 
     private func gameOverWithLose(_ gameLevel: Int, gameTime: Int) {
