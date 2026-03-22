@@ -130,11 +130,9 @@ final class ViewController: UIViewController, ADBannerViewDelegate, FullScreenCo
     }
 
     private func showHintView() {
-        guard let hintViewController = storyboard?.instantiateViewController(withIdentifier: "HintViewController") as? HintViewController else {
-            return
-        }
-        navigationController?.modalPresentationStyle = .currentContext
-        navigationController?.present(hintViewController, animated: true, completion: nil)
+        let hintViewController = HintViewController()
+        hintViewController.modalPresentationStyle = .currentContext
+        present(hintViewController, animated: true, completion: nil)
     }
 
     private func showAdmob() {
