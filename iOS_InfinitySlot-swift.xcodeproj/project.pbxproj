@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4AB406142F6D956700ACE75A /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 4AB406132F6D956700ACE75A /* GoogleMobileAds */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		4AB404212F6D71EE00ACE75A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AB406142F6D956700ACE75A /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +130,7 @@
 			);
 			name = "iOS_InfinitySlot-swift";
 			packageProductDependencies = (
+				4AB406132F6D956700ACE75A /* GoogleMobileAds */,
 			);
 			productName = "iOS_InfinitySlot-swift";
 			productReference = 4AB4040A2F6D71EB00ACE75A /* iOS_InfinitySlot-swift.app */;
@@ -205,9 +211,43 @@
 			knownRegions = (
 				en,
 				Base,
+				de,
+				he,
+				ar,
+				el,
+				"zh-Hans",
+				ja,
+				uk,
+				nb,
+				es,
+				da,
+				it,
+				sk,
+				ms,
+				sv,
+				cs,
+				ko,
+				"zh-Hant",
+				hu,
+				tr,
+				pl,
+				"pt-BR",
+				vi,
+				ru,
+				fr,
+				fi,
+				id,
+				nl,
+				th,
+				pt,
+				ro,
+				ca,
 			);
 			mainGroup = 4AB404012F6D71EB00ACE75A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				4AB406122F6D956700ACE75A /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4AB4040B2F6D71EB00ACE75A /* Products */;
 			projectDirPath = "";
@@ -583,6 +623,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4AB406122F6D956700ACE75A /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads?tab=readme-ov-file";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 13.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4AB406132F6D956700ACE75A /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4AB406122F6D956700ACE75A /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4AB404022F6D71EB00ACE75A /* Project object */;
 }
