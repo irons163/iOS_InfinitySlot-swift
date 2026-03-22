@@ -125,12 +125,10 @@ final class ViewController: UIViewController, ADBannerViewDelegate, FullScreenCo
     }
 
     private func showBuyViewController() {
-        guard let buyViewController = storyboard?.instantiateViewController(withIdentifier: "BuyViewController") as? BuyViewController else {
-            return
-        }
+        let buyViewController = BuyViewController()
         buyViewController.viewController = self
-        navigationController?.modalPresentationStyle = .currentContext
-        navigationController?.present(buyViewController, animated: true, completion: nil)
+        buyViewController.modalPresentationStyle = .currentContext
+        present(buyViewController, animated: true, completion: nil)
     }
 
     private func showHintView() {

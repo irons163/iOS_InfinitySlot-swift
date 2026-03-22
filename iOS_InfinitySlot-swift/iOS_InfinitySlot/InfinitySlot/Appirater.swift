@@ -1,7 +1,7 @@
 import StoreKit
 import UIKit
 
-final class Appirater: NSObject, UIAlertViewDelegate, SKStoreProductViewControllerDelegate {
+final class Appirater: NSObject, SKStoreProductViewControllerDelegate {
     private static let kAppiraterFirstUseDate = "kAppiraterFirstUseDate"
     private static let kAppiraterUseCount = "kAppiraterUseCount"
     private static let kAppiraterSignificantEventCount = "kAppiraterSignificantEventCount"
@@ -31,7 +31,7 @@ final class Appirater: NSObject, UIAlertViewDelegate, SKStoreProductViewControll
     private var alertCancelTitle: String?
     private var alertRateTitle: String?
     private var alertRateLaterTitle: String?
-    private var ratingAlert: UIAlertView?
+    private var ratingAlert: UIAlertController?
     var openInAppStore: Bool = true
 
     private static let sharedInstance: Appirater = {
@@ -230,40 +230,57 @@ final class Appirater: NSObject, UIAlertViewDelegate, SKStoreProductViewControll
     }
 
     private func showRatingAlert(_ displayRateLaterButton: Bool) {
-        let alertView: UIAlertView
-        if displayRateLaterButton {
-            alertView = UIAlertView(
-                title: resolvedAlertTitle,
-                message: resolvedAlertMessage,
-                delegate: self,
-                cancelButtonTitle: resolvedAlertCancelTitle,
-                otherButtonTitles: resolvedAlertRateTitle, resolvedAlertRateLaterTitle
-            )
-        } else {
-            alertView = UIAlertView(
-                title: resolvedAlertTitle,
-                message: resolvedAlertMessage,
-                delegate: self,
-                cancelButtonTitle: resolvedAlertCancelTitle,
-                otherButtonTitles: resolvedAlertRateTitle
-            )
+        guard ratingAlert == nil else { return }
+        guard let presenter = Appirater.topViewController() else { return }
+
+        let alert = UIAlertController(title: resolvedAlertTitle, message: resolvedAlertMessage, preferredStyle: .alert)
+
+        let cancelAction = UIAlertAction(title: resolvedAlertCancelTitle, style: .cancel) { [weak self] _ in
+            guard let self = self else { return }
+            let userDefaults = UserDefaults.standard
+            userDefaults.set(true, forKey: Appirater.kAppiraterDeclinedToRate)
+            userDefaults.synchronize()
+            Appirater.delegateRef?.appiraterDidDeclineToRate?(self)
+            self.ratingAlert = nil
         }
-        ratingAlert = alertView
-        alertView.show()
-        Appirater.delegateRef?.appiraterDidDisplayAlert?(self)
+        alert.addAction(cancelAction)
+
+        let rateAction = UIAlertAction(title: resolvedAlertRateTitle, style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            Appirater.rateApp()
+            Appirater.delegateRef?.appiraterDidOptToRate?(self)
+            self.ratingAlert = nil
+        }
+        alert.addAction(rateAction)
+
+        if displayRateLaterButton {
+            let laterAction = UIAlertAction(title: resolvedAlertRateLaterTitle, style: .default) { [weak self] _ in
+                guard let self = self else { return }
+                let userDefaults = UserDefaults.standard
+                userDefaults.set(Date().timeIntervalSince1970, forKey: Appirater.kAppiraterReminderRequestDate)
+                userDefaults.synchronize()
+                Appirater.delegateRef?.appiraterDidOptToRemindLater?(self)
+                self.ratingAlert = nil
+            }
+            alert.addAction(laterAction)
+        }
+
+        ratingAlert = alert
+        presenter.present(alert, animated: true) { [weak self] in
+            if let self = self { Appirater.delegateRef?.appiraterDidDisplayAlert?(self) }
+        }
     }
 
     private func hideRatingAlert() {
-        if ratingAlert?.isVisible == true {
-            if Appirater.debug { NSLog("APPIRATER Hiding Alert") }
-            ratingAlert?.dismiss(withClickedButtonIndex: -1, animated: false)
-        }
+        if Appirater.debug { NSLog("APPIRATER Hiding Alert") }
+        ratingAlert?.dismiss(animated: false, completion: nil)
+        ratingAlert = nil
     }
 
     private func ratingAlertIsAppropriate() -> Bool {
         return connectedToNetwork() &&
             !userHasDeclinedToRate() &&
-            (ratingAlert?.isVisible == false || ratingAlert == nil) &&
+            ratingAlert == nil &&
             !userHasRatedCurrentVersion()
     }
 
@@ -382,26 +399,22 @@ final class Appirater: NSObject, UIAlertViewDelegate, SKStoreProductViewControll
         return UserDefaults.standard.bool(forKey: Appirater.kAppiraterRatedCurrentVersion)
     }
 
-    func alertView(_ alertView: UIAlertView, didDismissWithButtonIndex buttonIndex: Int) {
-        let userDefaults = UserDefaults.standard
-        switch buttonIndex {
-        case 0:
-            userDefaults.set(true, forKey: Appirater.kAppiraterDeclinedToRate)
-            userDefaults.synchronize()
-            Appirater.delegateRef?.appiraterDidDeclineToRate?(self)
-        case 1:
-            Appirater.rateApp()
-            Appirater.delegateRef?.appiraterDidOptToRate?(self)
-        case 2:
-            userDefaults.set(Date().timeIntervalSince1970, forKey: Appirater.kAppiraterReminderRequestDate)
-            userDefaults.synchronize()
-            Appirater.delegateRef?.appiraterDidOptToRemindLater?(self)
-        default:
-            break
-        }
-    }
-
     func productViewControllerDidFinish(_ viewController: SKStoreProductViewController) {
         Appirater.closeModal()
+    }
+
+    private static func topViewController() -> UIViewController? {
+        let scenes = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .filter { $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive }
+
+        let windows = scenes.flatMap { $0.windows }
+        let keyWindow = windows.first { $0.isKeyWindow } ?? windows.first
+
+        var top = keyWindow?.rootViewController
+        while let presented = top?.presentedViewController {
+            top = presented
+        }
+        return top
     }
 }

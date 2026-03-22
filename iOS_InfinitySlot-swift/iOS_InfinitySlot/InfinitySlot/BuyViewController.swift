@@ -49,6 +49,11 @@ final class BuyViewController: UIViewController, SKProductsRequestDelegate, SKPa
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        if item5000Label == nil {
+            configureFallbackUI()
+            return
+        }
+
         if !CommonUtil.shared.isFreeVersion {
             item5000Label.text = NSLocalizedString("get6000Coin", comment: "")
             item30000Label.text = NSLocalizedString("get35000Coin", comment: "")
@@ -62,6 +67,100 @@ final class BuyViewController: UIViewController, SKProductsRequestDelegate, SKPa
         }
 
         SKPaymentQueue.default().add(self)
+    }
+
+    private func configureFallbackUI() {
+        view.backgroundColor = .white
+
+        let titleLabel = UILabel()
+        titleLabel.text = "Shop"
+        titleLabel.textColor = .black
+        titleLabel.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        let backButton = UIButton(type: .system)
+        backButton.setTitle("Back", for: .normal)
+        backButton.setTitleColor(.black, for: .normal)
+        backButton.addTarget(self, action: #selector(backBtn(_:)), for: .touchUpInside)
+        backButton.translatesAutoresizingMaskIntoConstraints = false
+
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 12
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        func makeRow(title: String, tag: Int) -> (UILabel, UIButton) {
+            let label = UILabel()
+            label.text = title
+            label.textColor = .darkGray
+            label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+
+            let button = UIButton(type: .system)
+            button.setTitle("Buy", for: .normal)
+            button.setTitleColor(.black, for: .normal)
+            button.layer.borderWidth = 1
+            button.layer.borderColor = UIColor.black.cgColor
+            button.layer.cornerRadius = 6
+            button.contentEdgeInsets = UIEdgeInsets(top: 6, left: 16, bottom: 6, right: 16)
+            button.tag = tag
+            button.addTarget(self, action: #selector(handleBuyButton(_:)), for: .touchUpInside)
+
+            let row = UIStackView(arrangedSubviews: [label, UIView(), button])
+            row.axis = .horizontal
+            row.alignment = .center
+            stack.addArrangedSubview(row)
+            return (label, button)
+        }
+
+        let row5000 = makeRow(title: "Get 5000 Coins", tag: click5000btn)
+        let row30000 = makeRow(title: "Get 30000 Coins", tag: click30000btn)
+        let row65000 = makeRow(title: "Get 65000 Coins", tag: click65000btn)
+        let row175000 = makeRow(title: "Get 175000 Coins", tag: click175000btn)
+        let row375000 = makeRow(title: "Get 375000 Coins", tag: click375000btn)
+        let row850000 = makeRow(title: "Get 850000 Coins + Remove Ads", tag: click850000btn)
+
+        let restoreButton = UIButton(type: .system)
+        restoreButton.setTitle("Restore", for: .normal)
+        restoreButton.setTitleColor(.black, for: .normal)
+        restoreButton.layer.borderWidth = 1
+        restoreButton.layer.borderColor = UIColor.black.cgColor
+        restoreButton.layer.cornerRadius = 6
+        restoreButton.contentEdgeInsets = UIEdgeInsets(top: 6, left: 16, bottom: 6, right: 16)
+        restoreButton.addTarget(self, action: #selector(restore), for: .touchUpInside)
+        restoreButton.translatesAutoresizingMaskIntoConstraints = false
+
+        view.addSubview(titleLabel)
+        view.addSubview(backButton)
+        view.addSubview(stack)
+        view.addSubview(restoreButton)
+
+        NSLayoutConstraint.activate([
+            backButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
+            stack.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            stack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            stack.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
+            restoreButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            restoreButton.topAnchor.constraint(equalTo: stack.bottomAnchor, constant: 20)
+        ])
+
+        item5000Label = row5000.0
+        item30000Label = row30000.0
+        item65000Label = row65000.0
+        item175000Label = row175000.0
+        item375000Label = row375000.0
+        item850000Label = row850000.0
+        item850000RemoveAdLabel = UILabel()
+        buy5000Btn = row5000.1
+        buy850000Btn = row850000.1
+        restoreBtn = restoreButton
+    }
+
+    @objc private func handleBuyButton(_ sender: UIButton) {
+        currentClick = sender.tag
+        tapsRemoveAdsButton()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
